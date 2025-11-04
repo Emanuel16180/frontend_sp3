@@ -1,0 +1,88 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Updated to elegant neutral color scheme with cyan/teal palette */
+  --background: #ffffff; /* Main background color */
+  --foreground: #475569; /* Primary text color */
+  --card: #ecfeff; /* Background for cards */
+  --card-foreground: #164e63; /* Text color for cards */
+  --popover: #ffffff; /* Background for popovers */
+  --popover-foreground: #475569; /* Text color for popovers */
+  --primary: #164e63; /* Primary actions (buttons, links) */
+  --primary-foreground: #ffffff; /* Text color for primary actions */
+  --secondary: #89b2b6; /* Secondary actions */
+  --secondary-foreground: #ffffff; /* Text color for secondary actions */
+  --muted: #f9fafb; /* Muted background for less emphasis */
+  --muted-foreground: #475569; /* Text color for muted elements */
+  --accent: #89b2b6; /* Accent elements (highlights, indicators) */
+  --accent-foreground: #164e63; /* Text color for accent elements */
+  --destructive: #be123c; /* Destructive actions (errors) */
+  --destructive-foreground: #ffffff; /* Text color for destructive actions */
+  --border: #d1d5db; /* Border color for containers */
+  --input: #f9fafb; /* Background for input fields */
+  --ring: rgba(22, 78, 99, 0.5); /* Focus ring color */
+  --chart-1: #6b7280; /* Chart color 1 */
+  --chart-2: #9ca3af; /* Chart color 2 */
+  --chart-3: #d1d5db; /* Chart color 3 */
+  --chart-4: #e5e7eb; /* Chart color 4 */
+  --chart-5: #f3f4f6; /* Chart color 5 */
+  --radius: 0.5rem; /* Corner rounding for elements */
+  --sidebar: #ffffff; /* Background for sidebar */
+  --sidebar-foreground: #475569; /* Text color for sidebar */
+  --sidebar-primary: #ecfeff; /* Primary sidebar background */
+  --sidebar-primary-foreground: #164e63; /* Text color for primary sidebar */
+  --sidebar-accent: #89b2b6; /* Accent color for sidebar */
+  --sidebar-accent-foreground: #164e63; /* Text color for sidebar accent */
+  --sidebar-border: #d1d5db; /* Border for sidebar */
+  --sidebar-ring: rgba(22, 78, 99, 0.5); /* Focus ring for sidebar */
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: #89b2b6;
+  --secondary-foreground: #ffffff;
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: #89b2b6;
+  --accent-foreground: #164e63;
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@layer base {
+  * {
+    /* Esta es la línea corregida. 'outline-ring/50' no existe. */
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Aquí puedes definir las fuentes si las importas en tu index.html */
+    /* font-family: var(--font-sans), sans-serif; */
+  }
+}
