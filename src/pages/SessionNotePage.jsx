@@ -2,46 +2,63 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Save, Target } from 'lucide-react'; // <-- AÑADIDO Target
+import { ChevronLeft, Save, Target, Pill } from 'lucide-react'; 
 import apiClient from '../api';
 import { toast } from 'react-toastify';
-import ObjectiveModal from '../components/ObjectiveModal'; // <-- 1. IMPORTAR NUEVO MODAL
+import ObjectiveModal from '../components/ObjectiveModal';
+import PrescriptionModal from '../components/PrescriptionModal';
 
 // --- Constantes de Estilo ---
 const btnPrimary = "px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-center flex items-center gap-2";
 const btnSecondary = "px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors text-center flex items-center gap-2";
-// Nuevo estilo para el botón de objetivos
 const btnOutline = "px-6 py-3 bg-transparent border border-border text-foreground rounded-lg font-semibold hover:bg-muted transition-colors flex items-center gap-2";
+const btnWarning = "px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition-colors text-center flex items-center gap-2";
 
 
 function SessionNotePage() {
-    const { appointmentId } = useParams(); // Obtiene el ID de la cita de la URL
+    const { appointmentId } = useParams();
     const [note, setNote] = useState(null);
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [appointmentInfo, setAppointmentInfo] = useState(null);
 
-    // --- 2. AÑADIR ESTADO PARA EL MODAL ---
     const [isObjectiveModalOpen, setIsObjectiveModalOpen] = useState(false);
+    const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false); 
+    const [isPsychiatrist, setIsPsychiatrist] = useState(false); 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Obtener información de la cita primero
+                // 1. Obtenemos el perfil del profesional logueado
+                const profileResponse = await apiClient.get('/professionals/profile/');
+                const profile = profileResponse.data;
+
+                if (profile && profile.specializations) {
+                    const normalize = (str) => 
+                        (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                    const isPsyc = profile.specializations
+                        .some(spec => normalize(spec.name).includes('psiquiatr'));
+                    
+                    setIsPsychiatrist(isPsyc);
+                }
+
+                // 2. Continuamos cargando los datos de la cita
                 const appointmentResponse = await apiClient.get(`/appointments/appointments/${appointmentId}/`);
                 setAppointmentInfo(appointmentResponse.data);
 
-                // Intentar obtener la nota existente
+                // 3. Intentamos obtener la nota
                 const noteResponse = await apiClient.get(`/appointments/appointments/${appointmentId}/note/`);
                 setNote(noteResponse.data);
                 setContent(noteResponse.data.content);
+
             } catch (error) {
-                if (error.response && error.response.status === 404) {
-                    // Si da 404, significa que no hay nota, lo cual está bien.
+                if (error.response && error.response.status === 404 && error.config.url.includes('/note/')) {
                     console.log('No existe una nota para esta cita. Se creará una nueva.');
                 } else {
-                    toast.error('No se pudo cargar la información de la nota.');
+                    console.error('Error al cargar datos:', error);
+                    toast.error('No se pudo cargar la información de la página.');
                 }
             } finally {
                 setLoading(false);
@@ -58,7 +75,7 @@ function SessionNotePage() {
         }
 
         setSaving(true);
-        const apiMethod = note ? 'patch' : 'post'; // Si hay nota, actualiza (PATCH); si no, crea (POST)
+        const apiMethod = note ? 'patch' : 'post';
         const apiUrl = note
             ? `/appointments/appointments/${appointmentId}/note/${note.id}/`
             : `/appointments/appointments/${appointmentId}/note/`;
@@ -87,9 +104,8 @@ function SessionNotePage() {
     }
 
     return (
-        <> {/* 3. AÑADIR FRAGMENTO Y MODAL AL FINAL */}
+        <>
             <div className="max-w-4xl mx-auto">
-                {/* Navegación de retorno */}
                 <Link 
                     to="/psychologist-dashboard" 
                     className="flex items-center gap-1 text-primary font-medium hover:underline mb-6"
@@ -98,7 +114,6 @@ function SessionNotePage() {
                     Volver al Dashboard
                 </Link>
 
-                {/* Encabezado */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary mb-4">Nota de Sesión</h1>
                     
@@ -118,21 +133,10 @@ function SessionNotePage() {
                                     <p className="font-semibold text-foreground">{appointmentInfo.start_time}</p>
                                 </div>
                             </div>
-                            <div className="mt-4">
-                                <span className="text-sm text-muted-foreground">Estado:</span>
-                                <span className={`ml-2 px-3 py-1 rounded-full text-xs font-bold ${
-                                    appointmentInfo.status === 'completed' 
-                                        ? 'bg-gray-100 text-gray-800' 
-                                        : 'bg-green-100 text-green-800'
-                                }`}>
-                                    {appointmentInfo.status_display}
-                                </span>
-                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* Área de edición de nota */}
                 <div className="bg-card text-card-foreground p-6 rounded-xl shadow-lg border border-border">
                     <h2 className="text-xl font-semibold text-primary mb-4">
                         {note ? 'Editar Nota Privada' : 'Crear Nueva Nota'}
@@ -146,7 +150,7 @@ function SessionNotePage() {
                             className="w-full h-80 p-4 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder="Escribe aquí las notas privadas de la sesión...&#10;&#10;Ejemplo:&#10;- Progreso observado&#10;- Temas tratados&#10;- Recomendaciones&#10;- Próximos pasos"
+                            placeholder="Escribe aquí las notas privadas de la sesión..."
                         />
                         <p className="text-xs text-muted-foreground mt-2">
                             Esta nota es completamente privada y solo será visible para ti.
@@ -154,15 +158,25 @@ function SessionNotePage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row justify-end gap-3">
-                        {/* 4. AÑADIR BOTÓN "ASIGNAR OBJETIVO" */}
                         <button 
                             type="button"
                             onClick={() => setIsObjectiveModalOpen(true)}
-                            className={btnOutline} // Estilo diferente
+                            className={btnOutline}
                         >
                             <Target className="h-4 w-4" />
                             Asignar Objetivo
                         </button>
+                        
+                        {isPsychiatrist && (
+                            <button 
+                                type="button"
+                                onClick={() => setIsPrescriptionModalOpen(true)}
+                                className={btnWarning}
+                            >
+                                <Pill className="h-4 w-4" />
+                                Gestionar Receta
+                            </button>
+                        )}
                         
                         <Link to="/psychologist-dashboard" className={btnSecondary}>
                             Cancelar
@@ -178,7 +192,6 @@ function SessionNotePage() {
                     </div>
                 </div>
 
-                {/* Información adicional */}
                 {note && (
                     <div className="mt-6 bg-muted/50 p-4 rounded-lg">
                         <p className="text-sm text-muted-foreground">
@@ -188,13 +201,21 @@ function SessionNotePage() {
                 )}
             </div>
 
-            {/* 5. AÑADIR EL MODAL AL FINAL DEL RETURN */}
             {appointmentInfo && (
                 <ObjectiveModal
                     isOpen={isObjectiveModalOpen}
                     onClose={(didSubmit) => setIsObjectiveModalOpen(false)}
                     patientId={appointmentInfo.patient}
                     appointmentId={appointmentInfo.id}
+                />
+            )}
+
+            {appointmentInfo && (
+                <PrescriptionModal
+                    isOpen={isPrescriptionModalOpen}
+                    onClose={() => setIsPrescriptionModalOpen(false)}
+                    patientId={appointmentInfo.patient}
+                    patientName={appointmentInfo.patient_name}
                 />
             )}
         </>

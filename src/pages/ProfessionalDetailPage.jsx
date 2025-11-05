@@ -1,22 +1,18 @@
 // src/pages/ProfessionalDetailPage.jsx
 import { toast } from 'react-toastify';
-import { useState, useEffect, useMemo } from 'react'; // <-- AÑADIDO useMemo
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiClient from '../api';
-// Importamos los iconos
-import { Star, MapPin, Clock, BookOpen, Briefcase, ChevronLeft, Calendar, CheckCircle, Package, Zap, DollarSign, Loader } from 'lucide-react'; // <-- AÑADIDOS
-// Importamos el componente de reseñas
+import { Star, MapPin, Clock, BookOpen, Briefcase, ChevronLeft, Calendar, CheckCircle, Package, Zap, DollarSign, Loader } from 'lucide-react';
 import ReviewsList from '../components/ReviewsList';
-// Importamos el componente de pago
 import PaymentButton from '../components/PaymentButton';
-// Importamos el componente de información de pago
 import PaymentInfo from '../components/PaymentInfo';
 
 // --- Constantes de Estilo ---
 const btnBookable = "px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm text-center cursor-pointer";
 const btnBooked = "px-4 py-2 bg-muted text-muted-foreground rounded-lg cursor-not-allowed text-sm text-center";
 const btnPrimary = "w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-center";
-const btnDisabled = "w-full px-6 py-3 bg-muted text-muted-foreground rounded-lg font-semibold cursor-not-allowed text-center"; // <-- AÑADIDO
+const btnDisabled = "w-full px-6 py-3 bg-muted text-muted-foreground rounded-lg font-semibold cursor-not-allowed text-center";
 
 // --- Componente de Estrellas (sin cambios) ---
 function StarRating({ rating = 0 }) {
@@ -38,7 +34,7 @@ function StarRating({ rating = 0 }) {
 
 // --- Componente de Pestañas (Tabs) ---
 function Tabs({ activeTab, setActiveTab }) {
-  const tabs = ["Acerca de", "Experiencia", "Especialidades", "Planes", "Reseñas"]; // <-- MODIFICADO: AÑADIDO "Planes"
+  const tabs = ["Acerca de", "Experiencia", "Especialidades", "Planes", "Reseñas"];
   const getClasses = (tabName) => {
     return activeTab === tabName
       ? "pb-2 border-b-2 border-primary text-primary font-semibold"
@@ -71,12 +67,12 @@ function ProfessionalDetailPage() {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     
-    // --- NUEVOS ESTADOS PARA PLANES (FLUJO B y C) ---
-    const [availablePlans, setAvailablePlans] = useState([]); // Planes para comprar
-    const [myPlans, setMyPlans] = useState([]); // Planes ya comprados
-    const [selectedPatientPlanId, setSelectedPatientPlanId] = useState(null); // Plan seleccionado para agendar
-    const [isPurchasing, setIsPurchasing] = useState(null); // ID del plan que se está comprando
-    const [loadingSchedule, setLoadingSchedule] = useState(false); // Loading para agendar
+    // Estados para PLANES
+    const [availablePlans, setAvailablePlans] = useState([]); 
+    const [myPlans, setMyPlans] = useState([]); 
+    const [selectedPatientPlanId, setSelectedPatientPlanId] = useState(null); 
+    const [isPurchasing, setIsPurchasing] = useState(null); 
+    const [loadingSchedule, setLoadingSchedule] = useState(false); 
 
     // --- Función para obtener el horario (separada para reutilización) ---
     const fetchSchedule = async (userId) => {
@@ -86,7 +82,6 @@ function ProfessionalDetailPage() {
             const scheduleResponse = await apiClient.get(`/appointments/psychologist/${userId}/schedule/`);
             setSchedule(scheduleResponse.data);
             
-            // Si no hay fecha seleccionada O la fecha seleccionada ya no es válida
             const currentSelectedDateStillValid = scheduleResponse.data?.schedule.find(d => d.date === selectedDate?.date && d.is_available);
             
             if (!selectedDate || !currentSelectedDateStillValid) {
@@ -94,10 +89,9 @@ function ProfessionalDetailPage() {
                 if (firstAvailableDay) {
                     setSelectedDate(firstAvailableDay);
                 } else {
-                    setSelectedDate(null); // No hay días disponibles
+                    setSelectedDate(null); 
                 }
             } else {
-                // Actualiza la fecha seleccionada con los nuevos datos
                 const updatedSelectedDay = scheduleResponse.data?.schedule.find(d => d.date === selectedDate.date);
                 if (updatedSelectedDay) {
                     setSelectedDate(updatedSelectedDay);
@@ -118,22 +112,17 @@ function ProfessionalDetailPage() {
         const fetchDetails = async () => {
             setLoading(true);
             try {
-                // 1. Obtener información del usuario actual
                 apiClient.get('/users/profile/').then(res => setCurrentUser(res.data)).catch(console.error);
 
-                // 2. Primero obtenemos el perfil profesional usando el ID de la URL
                 const profResponse = await apiClient.get(`/professionals/${id}/`);
                 setProfessional(profResponse.data);
                 
-                // 3. Extraemos el user_id del perfil para la segunda llamada
                 const userId = profResponse.data.user_id;
                 
                 if (userId) {
-                    // 4. Cargar horario, reseñas, y planes en paralelo
                     await Promise.all([
                         fetchSchedule(userId),
                         
-                        // Cargar Reseñas
                         apiClient.get(`/professionals/${id}/reviews/`)
                             .then(res => setReviewsData(res.data))
                             .catch(err => {
@@ -141,12 +130,10 @@ function ProfessionalDetailPage() {
                                 setReviewsData({ total_reviews: 0, reviews: [], average_rating: 0 });
                             }),
                         
-                        // FLUJO B: Ver planes disponibles de este psicólogo
                         apiClient.get(`/payments/plans/list/?psychologist_id=${userId}`)
                             .then(res => setAvailablePlans(res.data.results || res.data))
                             .catch(err => console.error("Error al cargar planes disponibles:", err)),
                         
-                        // FLUJO C: Ver mis planes ya comprados
                         apiClient.get(`/payments/plans/my-plans/`)
                             .then(res => setMyPlans(res.data.results || res.data))
                             .catch(err => console.error("Error al cargar mis planes:", err)),
@@ -168,7 +155,7 @@ function ProfessionalDetailPage() {
         fetchDetails();
     }, [id]);
 
-    // --- FLUJO B (Acción 2): Comprar un Plan ---
+    // --- Comprar un Plan ---
     const handlePurchasePlan = async (planId) => {
         setIsPurchasing(planId);
         try {
@@ -176,7 +163,6 @@ function ProfessionalDetailPage() {
                 plan_id: planId
             });
             
-            // Redirigir a Stripe para el pago
             const { checkout_url } = response.data;
             if (checkout_url) {
                 window.location.href = checkout_url;
@@ -190,31 +176,27 @@ function ProfessionalDetailPage() {
         }
     };
     
-    // --- FLUJO C (Acción 2): Agendar Cita (ACTUALIZADO) ---
-    // Esta función AHORA maneja la lógica de "Usar Plan"
-    // La lógica de pago individual se queda en <PaymentButton>
+    // --- Agendar Cita (Usando Plan) ---
     const handleBookAppointment = async () => {
         if (!selectedDate || !selectedTime) {
             toast.warning('Por favor, selecciona una fecha y hora disponibles.');
             return;
         }
 
-        // Si se seleccionó un plan, agendar sin pagar
         if (selectedPatientPlanId) {
-            setLoadingSchedule(true); // Usamos el loading de la agenda
+            setLoadingSchedule(true); 
             try {
                 const appointmentData = {
                     psychologist: professional.user_id,
                     appointment_date: selectedDate.date,
                     start_time: selectedTime,
-                    patient_plan_id: selectedPatientPlanId // ¡La clave!
+                    patient_plan_id: selectedPatientPlanId 
                 };
                 
                 await apiClient.post('/appointments/appointments/', appointmentData);
                 
                 toast.success(`¡Cita reservada exitosamente usando tu plan!`);
                 
-                // Refrescar todo
                 await Promise.all([
                     fetchSchedule(professional.user_id),
                     apiClient.get(`/payments/plans/my-plans/`).then(res => setMyPlans(res.data.results || res.data))
@@ -230,16 +212,17 @@ function ProfessionalDetailPage() {
                 setLoadingSchedule(false);
             }
         }
-        // El caso else (pago individual) es manejado por el componente PaymentButton
-        // Tu lógica original de PaymentButton se encarga de esto, no necesitamos el 'handleBookAppointment' original
     };
 
     // --- Lógica para filtrar mis planes (Flujo C) ---
     const usablePlans = useMemo(() => {
         if (!professional || !myPlans) return [];
-        // Filtra planes que sean de este psicólogo y que aún tengan sesiones
+        
         return myPlans.filter(p => 
-            p.plan.psychologist_id === professional.user_id && p.sessions_remaining > 0
+            // --- ¡CORRECCIÓN AQUÍ! ---
+            // Cambiamos `p.plan.psychologist_id` por `p.plan.psychologist`
+            // para que coincida con la respuesta de tu API (image_52f580.png)
+            p.plan.psychologist === Number(id) && p.sessions_remaining > 0
         );
     }, [myPlans, professional]);
 
@@ -332,7 +315,7 @@ function ProfessionalDetailPage() {
                         </div>
                     )}
 
-                    {/* --- INICIO FLUJO B (Idea 2A): Tab de Planes --- */}
+                    {/* --- Tab de Planes --- */}
                     {activeTab === "Planes" && (
                         <div className="bg-card text-card-foreground p-6 rounded-xl shadow-lg border border-border space-y-6">
                             <h2 className="text-xl font-semibold text-primary mb-3 flex items-center gap-2">
@@ -373,7 +356,6 @@ function ProfessionalDetailPage() {
                             )}
                         </div>
                     )}
-                    {/* --- FIN FLUJO B --- */}
 
                     {activeTab === "Reseñas" && (
                         <ReviewsList data={reviewsData} />
@@ -382,7 +364,6 @@ function ProfessionalDetailPage() {
 
                 {/* Columna Derecha: Agenda */}
                 <div className="w-full lg:w-96 flex-shrink-0">
-                    {/* Información de Pago */}
                     <PaymentInfo />
                     
                     <div className="bg-card p-6 rounded-xl shadow-lg border border-border sticky top-24">
@@ -449,7 +430,7 @@ function ProfessionalDetailPage() {
                             </div>
                         </div>
 
-                        {/* --- INICIO FLUJO C (Idea 3A y 3B) --- */}
+                        {/* --- Lógica de Pago / Usar Plan --- */}
                         {selectedTime && (
                             <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-4">
                                 <h3 className="font-semibold text-primary">¿Cómo deseas agendar?</h3>
@@ -534,7 +515,6 @@ function ProfessionalDetailPage() {
                                 </div>
                             </div>
                         )}
-                        {/* --- FIN FLUJO C --- */}
                         
                     </div>
                 </div>

@@ -35,10 +35,10 @@ import AuditLogPage from './pages/AuditLogPage.jsx';
 import TriagePage from './pages/TriagePage.jsx'; // (La del paso anterior)
 import MoodJournalHistoryPage from './pages/MoodJournalHistoryPage.jsx'; 
 import AdminValidationPage from './pages/AdminValidationPage.jsx';
-// <-- 3. AÑADIR NUEVA PÁGINA DE HISTORIAL
 import MyObjectivesPage from './pages/MyObjectivesPage.jsx'; // <-- 1. MODIFICACIÓN OBJETIVOS: Importar nueva página
 import PaymentReportPage from './pages/PaymentReportPage.jsx';
-import MyCarePlansPage from './pages/MyCarePlansPage.jsx'
+import MyCarePlansPage from './pages/MyCarePlansPage.jsx';
+import MyPrescriptionsPage from './pages/MyPrescriptionsPage.jsx';
 
 // Importaciones de Componentes
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -126,6 +126,7 @@ function DashboardLayout() {
                     {/* 5. AÑADIR ENLACE AL HISTORIAL (IDEA 3) */}
                     <Link to="/my-journal" className={navLink}>Mi Diario</Link>
                     <Link to="/my-documents" className={navLink}>Mis Documentos</Link>
+                    <Link to="/my-prescriptions" className={navLink}>Mi Tratamiento</Link>
                     <Link to="/profile" className={navLink}>Mi Perfil</Link>
                     <button onClick={handleLogout} className={btnDestructive}>Cerrar Sesión</button>
                 </div>
@@ -299,6 +300,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           {/* 3. MODIFICACIÓN OBJETIVOS: Añadir nueva ruta */}
           <Route path="my-objectives" element={<MyObjectivesPage />} />
           <Route path="my-documents" element={<MyDocumentsPage />} />
+          <Route path="my-prescriptions" element={<MyPrescriptionsPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="professional/:id" element={<ProfessionalDetailPage />} />
           <Route path="chat/:appointmentId" element={<ChatPage />} />
