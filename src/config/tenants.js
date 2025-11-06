@@ -104,30 +104,35 @@ export const getApiBaseURL = () => {
 
     const isLocalDevelopment = hostname.includes('localhost') || hostname.includes('127.0.0.1');
 
-    // 1. Dominio Raíz / Admin Global
-    if (!tenant) {
-        if (isLocalDevelopment) {
-            // Admin global usa http://localhost:8000
-            return 'http://localhost:8000/api';
+    // Allow an explicit Vite env var to override the API base URL (useful for Preview/Staging)
+    try {
+        const viteEnv = import.meta?.env?.VITE_API_BASE_URL;
+        if (viteEnv && viteEnv.length > 0) {
+            return viteEnv;
         }
-        return 'https://psico-admin.onrender.com/api';
+    } catch (e) {
+        // import.meta may not exist in some non-browser environments — ignore safely
     }
 
-    // 2. Tenant específico (¡USAR URL LOCAL CORRECTA!)
+    // Production: always point to the centralized API host.
+    // This avoids the frontend attempting to call the app subdomain (which serves the frontend)
+    // and ensures all requests go to the backend gateway `api.psicoadmin.xyz`.
+    if (!isLocalDevelopment) {
+        return 'https://api.psicoadmin.xyz/api';
+    }
+
+    // Local development: keep tenant-aware local routing so developers can run multiple tenant backends.
+    // e.g. bienestar.localhost:8000 -> http://bienestar.localhost:8000/api
     if (isLocalDevelopment) {
-        // CORRECCIÓN: Usamos el subdominio local (bienestar.localhost) y el puerto 8000.
-        // Esto garantiza que el Host header enviado sea "bienestar.localhost:8000".
-        // La detección del tenant ocurrirá en el backend por el subdominio `bienestar`.
+        if (!tenant) {
+            // Admin/global local backend
+            return 'http://localhost:8000/api';
+        }
         return `http://${tenant}.localhost:8000/api`;
     }
 
-    // 3. Producción (lógica original)
-    if (hostname.includes('-app.psicoadmin.xyz')) {
-        const backendHost = hostname.replace('-app', '');
-        return `https://${backendHost}/api`;
-    }
-
-    return `https://${tenant}.psicoadmin.xyz/api`;
+    // Fallback (shouldn't reach here)
+    return 'https://api.psicoadmin.xyz/api';
 };
 
 // Función para verificar si estamos en modo admin global

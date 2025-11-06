@@ -1,7 +1,7 @@
 // src/api.js
 
 import axios from 'axios';
-import { getApiBaseURL } from './config/tenants';
+import { getApiBaseURL, getTenantFromHostname } from './config/tenants';
 
 // Creamos una instancia de axios con configuración dinámica
 const apiClient = axios.create({
@@ -20,6 +20,18 @@ apiClient.interceptors.request.use(
         const token = localStorage.getItem('authToken');
         if (token) {
             config.headers.Authorization = `Token ${token}`;
+        }
+        // Añadir header X-Tenant-Schema: prioridad localStorage.selectedTenant > subdomain
+        try {
+            const selectedTenant = localStorage.getItem('selectedTenant');
+            const tenantFromHost = getTenantFromHostname();
+            const tenant = selectedTenant || tenantFromHost;
+            if (tenant) {
+                config.headers['X-Tenant-Schema'] = tenant;
+            }
+        } catch (e) {
+            // en caso de SSR o entorno extraño, no hacemos nada
+            // console.warn('tenant header not set', e);
         }
         return config;
     },
