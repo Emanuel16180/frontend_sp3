@@ -47,6 +47,7 @@ import Chatbot from './components/Chatbot.jsx';
 import MoodJournalModal from './components/MoodJournalModal.jsx'; // <-- 1. AÑADIR NUEVO MODAL
 import apiClient from './api'; // <-- 2. AÑADIR API CLIENT
 import './index.css'; 
+import { getApiBaseURL, getTenantFromHostname } from './config/tenants';
 
 // --- Clases de Botones (sin cambios) ---
 const btnPrimary = "px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-center";
@@ -277,6 +278,22 @@ function HomePage() {
 }
 
 // --- RENDERIZADO PRINCIPAL (sin cambios) ---
+// --- DEBUG: build-time and runtime checks ---
+try {
+    // build-time (Vite)
+    console.log('FRONTEND DEBUG: build-time VITE_API_BASE_URL =', import.meta?.env?.VITE_API_BASE_URL || '(none)');
+} catch (e) {
+    console.log('FRONTEND DEBUG: import.meta not available');
+}
+try {
+    // runtime
+    console.log('FRONTEND DEBUG: runtime getApiBaseURL() =', getApiBaseURL());
+    console.log('FRONTEND DEBUG: detected tenant (getTenantFromHostname) =', getTenantFromHostname());
+    console.log('FRONTEND DEBUG: window.location.hostname =', window.location.hostname);
+} catch (e) {
+    console.log('FRONTEND DEBUG: runtime debug failed', e);
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
