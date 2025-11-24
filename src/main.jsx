@@ -39,6 +39,7 @@ import MyObjectivesPage from './pages/MyObjectivesPage.jsx'; // <-- 1. MODIFICAC
 import PaymentReportPage from './pages/PaymentReportPage.jsx';
 import MyCarePlansPage from './pages/MyCarePlansPage.jsx';
 import MyPrescriptionsPage from './pages/MyPrescriptionsPage.jsx';
+import DownloadAppPage from './pages/DownloadAppPage.jsx'; // <-- PWA: Página de descarga
 
 // Importaciones de Componentes
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -307,6 +308,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/reset-password/:uid/:token" element={<PasswordResetConfirmPage />} />
         <Route path="/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/payment-cancel" element={<PaymentCancelPage />} />
+        {/* PWA: Rutas de descarga por clínica */}
+        <Route path="/descargar-app/:clinic" element={<DownloadAppPage />} />
+        <Route path="/descargar-app" element={<DownloadAppPage />} />
         
         {/* --- Rutas Protegidas para el Paciente --- */}
         <Route element={<ProtectedRoute userType="patient"><DashboardLayout /></ProtectedRoute>}>
