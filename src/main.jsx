@@ -299,7 +299,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        {/* --- Rutas Públicas --- */}
+        {/* --- Rutas Públicas (PWA primero para evitar redirecciones) --- */}
+        {/* PWA: Rutas de descarga por clínica - ANTES de las demás para prioridad */}
+        <Route path="/descargar-app/:clinic" element={<DownloadAppPage />} />
+        <Route path="/descargar-app" element={<DownloadAppPage />} />
+        
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -308,9 +312,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/reset-password/:uid/:token" element={<PasswordResetConfirmPage />} />
         <Route path="/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/payment-cancel" element={<PaymentCancelPage />} />
-        {/* PWA: Rutas de descarga por clínica */}
-        <Route path="/descargar-app/:clinic" element={<DownloadAppPage />} />
-        <Route path="/descargar-app" element={<DownloadAppPage />} />
         
         {/* --- Rutas Protegidas para el Paciente --- */}
         <Route element={<ProtectedRoute userType="patient"><DashboardLayout /></ProtectedRoute>}>
