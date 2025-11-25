@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 
 // Motor de respuestas inteligente basado en reglas
 class ChatbotEngine {
@@ -282,6 +283,10 @@ class ChatbotEngine {
 }
 
 export default function Chatbot() {
+    const location = useLocation();
+    if (location.pathname === '/admin-dashboard/reports') {
+        return null;
+    }
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {

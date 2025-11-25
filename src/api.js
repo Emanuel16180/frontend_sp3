@@ -53,4 +53,48 @@ apiClient.interceptors.response.use(
     }
 );
 
+// --- PAGOS: PACIENTE ---
+export const getMyPayments = () => {
+    return apiClient.get('/payments/my-payments/');
+};
+
+// --- PAGOS: PSICÓLOGO ---
+export const getPsychologistEarnings = (filters = {}) => {
+    // filters puede ser: { start_date: '...', patient_name: '...' }
+    return apiClient.get('/payments/psychologist-earnings/', { params: filters });
+};
+
+// --- COMÚN: DESCARGAR FACTURA/COMPROBANTE ---
+export const downloadInvoicePdf = async (transactionId, filename = 'comprobante.pdf') => {
+    try {
+        const response = await apiClient.get(`/payments/transactions/${transactionId}/invoice/`, {
+            responseType: 'blob', // Importante para archivos binarios (PDF)
+        });
+        
+        // Crear URL temporal y forzar descarga
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        return true;
+    } catch (error) {
+        console.error("Error descargando PDF:", error);
+        throw error;
+    }
+};
+
+// --- REPORTES INTELIGENTES (IA) ---
+export const generateSmartReport = (prompt) => {
+    return apiClient.post('/admin/reports/payments/generate_smart_report/', 
+        { prompt }, 
+        { 
+            responseType: 'blob' // ⚠️ CRÍTICO: Le dice a Axios que viene un archivo
+        }
+    );
+};
+
 export default apiClient;

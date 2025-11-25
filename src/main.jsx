@@ -40,6 +40,8 @@ import PaymentReportPage from './pages/PaymentReportPage.jsx';
 import MyCarePlansPage from './pages/MyCarePlansPage.jsx';
 import MyPrescriptionsPage from './pages/MyPrescriptionsPage.jsx';
 import DownloadAppPage from './pages/DownloadAppPage.jsx'; // <-- PWA: Página de descarga
+import PatientPaymentsPage from './pages/PatientPaymentsPage.jsx';
+import PsychologistEarningsPage from './pages/PsychologistEarningsPage.jsx';
 
 // Importaciones de Componentes
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -123,6 +125,7 @@ function DashboardLayout() {
                 <Link to="/dashboard" className="text-xl font-bold text-primary">Psico SAS</Link>
                 <div className="flex items-center gap-6">
                     <Link to="/my-appointments" className={navLink}>Mis Citas</Link>
+                    <Link to="/my-payments" className={navLink}>Mis Pagos</Link>
                     {/* 2. MODIFICACIÓN OBJETIVOS: Añadir enlace "Mis Objetivos" */}
                     <Link to="/my-objectives" className={navLink}>Mis Objetivos</Link>
                     {/* 5. AÑADIR ENLACE AL HISTORIAL (IDEA 3) */}
@@ -169,6 +172,7 @@ function PsychologistLayout() {
                 <div className="flex items-center gap-6">
                     <Link to="/psychologist-dashboard" className={navLink}>Dashboard</Link>
                     <Link to="/psychologist-dashboard" className={navLink}>Citas</Link>
+                    <Link to="/my-earnings" className={navLink}>Mis Ingresos</Link>
                     <Link to="/psychologist-plans" className={navLink}>Mis Planes</Link>
                     <Link to="/psychologist-documents" className={navLink}>Documentos</Link>
                     <Link to="/psychologist-availability" className={navLink}>Disponibilidad</Link>
@@ -317,6 +321,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route element={<ProtectedRoute userType="patient"><DashboardLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<ProfessionalsPage />} />
           <Route path="my-appointments" element={<MyAppointmentsPage />} />
+          <Route path="my-payments" element={<PatientPaymentsPage />} />
           {/* 6. AÑADIR RUTA PARA EL HISTORIAL (IDEA 3) */}
           <Route path="my-journal" element={<MoodJournalHistoryPage />} />
           {/* 3. MODIFICACIÓN OBJETIVOS: Añadir nueva ruta */}
@@ -341,6 +346,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         {/* --- Rutas Protegidas para el Psicólogo --- */}
         <Route element={<ProtectedRoute userType="professional"><PsychologistLayout /></ProtectedRoute>}>
           <Route path="psychologist-dashboard" element={<PsychologistDashboard />} />
+          <Route path="my-earnings" element={<PsychologistEarningsPage />} />
           <Route path="psychologist-availability" element={<PsychologistAvailabilityPage />} />
           <Route path="psychologist/chat/:appointmentId" element={<ChatPage />} />
           <Route path="psychologist-profile" element={<PsychologistProfilePage />} />
